@@ -1,29 +1,32 @@
 namespace Cryptex.Utils;
+
 public static class ConsoleEx
 {
-    private static bool IsWindows => OperatingSystem.IsWindows();
-
-    public static void PrintColored(string message, ConsoleColor color)
+    public static void PrintSuccess(string message)
     {
-        if (IsWindows)
-        {
-            var prev = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            Console.ForegroundColor = prev;
-        }
-        else
-        {
-            string ansiColor = color switch
-            {
-                ConsoleColor.Red => "\u001b[31;1m",
-                ConsoleColor.Green => "\u001b[32;1m",
-                ConsoleColor.Yellow => "\u001b[33;1m",
-                ConsoleColor.Blue => "\u001b[34;1m",
-                ConsoleColor.Cyan => "\u001b[36;1m",
-                _ => "\u001b[37;1m"
-            };
-            Console.WriteLine($"{ansiColor}{message}\u001b[0m");
-        }
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine($"✅ {message}");
+        Console.ResetColor();
+    }
+
+    public static void PrintError(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"❌ {message}");
+        Console.ResetColor();
+    }
+
+    public static void PrintWarning(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"⚠️  {message}");
+        Console.ResetColor();
+    }
+
+    public static void PrintInfo(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine($"ℹ️  {message}");
+        Console.ResetColor();
     }
 }

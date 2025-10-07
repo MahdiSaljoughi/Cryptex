@@ -1,122 +1,68 @@
-﻿using Cryptex.Services;
+﻿using Cryptex.Commands;
 using Cryptex.Utils;
 
 namespace Cryptex;
 
 class Program
 {
-    private static void Main(string[] args)
+    static void Main(string[] args)
     {
         if (args.Length == 0)
         {
-            ShowWelcomeMessage();
+            ShowWelcome();
             return;
         }
 
-        var command = args[0].ToLower();
-
-        switch (command)
+        try
         {
-            case "help":
-                ShowHelp();
-                break;
-
-            case "create-user":
-                if (args.Length < 2)
-                {
-                    ConsoleEx.PrintColored("Usage: create-user <username>", ConsoleColor.Yellow);
-                    break;
-                }
-
-                CreateUser(args[1]);
-                break;
-
-            case "create-session":
-                if (args.Length < 3)
-                {
-                    ConsoleEx.PrintColored("Usage: create-session <username> <session-name>", ConsoleColor.Yellow);
-                    break;
-                }
-
-                SessionService.CreateSession(args[1], args[2]);
-                break;
-
-            case "encrypt":
-                if (args.Length < 4)
-                {
-                    ConsoleEx.PrintColored("Usage: encrypt <username> <session-name> <message>", ConsoleColor.Yellow);
-                    break;
-                }
-
-                EncryptionService.EncryptMessage(args[1], args[2], args[3]);
-                break;
-
-
-            case "decrypt":
-                Console.WriteLine(">> [Decrypt] Command selected.");
-                break;
-
-            case "set-public-key":
-                if (args.Length < 4)
-                {
-                    ConsoleEx.PrintColored("Usage: set-public-key <username> <session-name> <key-or-path>",
-                        ConsoleColor.Yellow);
-                    break;
-                }
-
-                KeyService.SetOtherPublicKey(args[1], args[2], args[3]);
-                break;
-
-
-            case "set-storage-path":
-                Console.WriteLine(">> [set-storage-path] Command selected.");
-                break;
-
-            case "list-sessions":
-                Console.WriteLine(">> [list-sessions] Command selected.");
-                break;
-
-            default:
-                ConsoleEx.PrintColored("Unknown command. Use ` help ` for list of commands.", ConsoleColor.Yellow);
-                break;
+            ExecuteCommand(args);
+        }
+        catch (Exception ex)
+        {
+            ConsoleEx.PrintError($"Unexpected error: {ex.Message}");
         }
     }
 
-    private static void ShowWelcomeMessage()
+    private static void ExecuteCommand(string[] args)
     {
-        ConsoleEx.PrintColored("Welcome to Cryptex CLI - Secure RSA Messenger", ConsoleColor.Cyan);
-        ConsoleEx.PrintColored("Use ` help ` for list of commands.", ConsoleColor.Yellow);
-    }
+        string command = args[0].ToLower();
 
-    private static void ShowHelp()
-    {
-        ConsoleEx.PrintColored("Cryptex Help", ConsoleColor.Yellow);
-        Console.WriteLine("Available commands:");
-        Console.WriteLine("  create-user       Create a new user and generate RSA keys");
-        Console.WriteLine("  create-session    Create a new chat session");
-        Console.WriteLine("  encrypt           Encrypt a message in a session");
-        Console.WriteLine("  decrypt           Decrypt a message in a session");
-        Console.WriteLine("  set-public-key    Set public key of another user in a session");
-        Console.WriteLine("  set-storage-path  Change default storage path");
-        Console.WriteLine("  list-sessions     List all available sessions");
-    }
-
-    private static void CreateUser(string username)
-    {
-        string basePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".cryptex",
-            "users",
-            username
-        );
-
-        if (Directory.Exists(basePath))
+        var result = command switch
         {
-            ConsoleEx.PrintColored($"User '{username}' already exists!", ConsoleColor.Red);
-            return;
-        }
+            "help" => HelpCommand.ShowHelp(),
+            "setup" => UserCommands.Setup(),
+            "my-info" => UserCommands.ShowMyInfo(),
+            "edit-profile" => UserCommands.EditProfile(),
+            "regenerate-keys" => UserCommands.RegenerateKeys(),
+            "reset-account" => UserCommands.ResetAccount(),
+            "create-session" => SessionCommands.CreateSession(args),
+            "set-friend-key" => SessionCommands.SetFriendKey(args),
+            "encrypt" => CryptoCommands.Encrypt(args),
+            "decrypt" => CryptoCommands.Decrypt(args),
+            "list-sessions" => SessionCommands.ListSessions(),
+            "change-storage" => ConfigCommands.ChangeStorage(args),
+            "show-config" => ConfigCommands.ShowConfig(),
+            "fix-storage" => ConfigCommands.FixStorage(),
+            _ => HandleUnknownCommand(command)
+        };
 
-        KeyService.GenerateKeys(basePath);
-        ConsoleEx.PrintColored($"User '{username}' created successfully at {basePath}", ConsoleColor.Green);
+        if (!result)
+        {
+            Environment.Exit(1);
+        }
+    }
+
+    private static bool HandleUnknownCommand(string command)
+    {
+        ConsoleEx.PrintError($"Unknown command: {command}");
+        HelpCommand.ShowHelp();
+        return false;
+    }
+
+    private static void ShowWelcome()
+    {
+        ConsoleEx.PrintInfo("=== Cryptex CLI - Secure Messenger ===");
+        Console.WriteLine("To get started: cryptex setup");
+        Console.WriteLine("For help: cryptex help");
     }
 }
