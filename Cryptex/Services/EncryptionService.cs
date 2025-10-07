@@ -61,7 +61,7 @@ public static class EncryptionService
             return;
         }
 
-        string privateKeyPath = Path.Combine(config.StoragePath, "users", config.CurrentUser, "private.pem");
+        string privateKeyPath = Path.Combine(config.StoragePath, "user", config.CurrentUser, "private.pem");
         if (!File.Exists(privateKeyPath))
         {
             ConsoleEx.PrintError("Private key not found.");
@@ -99,6 +99,6 @@ public static class EncryptionService
     private static string GetSessionPath(string username, string sessionName)
     {
         var config = ConfigService.LoadConfig();
-        return Path.Combine(config.StoragePath, "users", username, "sessions", sessionName);
+        return Path.Combine(config.StoragePath, "user", username, "sessions", sessionName);
     }
 }

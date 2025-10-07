@@ -83,8 +83,8 @@ public static class UserCommands
             return true;
         }
 
-        string oldUserPath = Path.Combine(config.StoragePath, "users", config.CurrentUser);
-        string newUserPath = Path.Combine(config.StoragePath, "users", newUsername);
+        string oldUserPath = Path.Combine(config.StoragePath, "user", config.CurrentUser);
+        string newUserPath = Path.Combine(config.StoragePath, "user", newUsername);
 
         if (Directory.Exists(newUserPath))
         {

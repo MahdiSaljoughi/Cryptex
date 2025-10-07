@@ -39,7 +39,7 @@ public static class SessionService
             return;
         }
 
-        string sessionsPath = Path.Combine(config.StoragePath, "users", config.CurrentUser, "sessions");
+        string sessionsPath = Path.Combine(config.StoragePath, "user", config.CurrentUser, "sessions");
 
         if (!Directory.Exists(sessionsPath))
         {
@@ -61,7 +61,7 @@ public static class SessionService
     private static void CopyUserPublicKey(string username, string sessionPath)
     {
         var config = ConfigService.LoadConfig();
-        string userPublicKeyPath = Path.Combine(config.StoragePath, "users", username, "public.pem");
+        string userPublicKeyPath = Path.Combine(config.StoragePath, "user", username, "public.pem");
         string sessionPublicKeyPath = Path.Combine(sessionPath, "my_public.pem");
 
         if (File.Exists(userPublicKeyPath))
@@ -77,6 +77,6 @@ public static class SessionService
     private static string GetSessionPath(string username, string sessionName)
     {
         var config = ConfigService.LoadConfig();
-        return Path.Combine(config.StoragePath, "users", username, "sessions", sessionName);
+        return Path.Combine(config.StoragePath, "user", username, "sessions", sessionName);
     }
 }
